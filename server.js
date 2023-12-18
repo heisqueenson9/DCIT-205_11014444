@@ -27,9 +27,6 @@ const patientSchema = new mongoose.Schema({
 // Create a Patient model using the schema
 const Patient = mongoose.model('Patient', patientSchema);
 
-// Dummy data to store registered patients
-// const patients = [];
-
 // API endpoint for patient registration
 app.post('/register', async (req, res) => {
     const {
