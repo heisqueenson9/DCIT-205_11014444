@@ -1,101 +1,94 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-
+const express = require("express")
+const mongoose = require("mongoose")
 const app = express();
+const bodyParser = require("body-parser");
+
 app.use(bodyParser.json());
 
-// Connect to MongoDB (replace 'your_database_url' with your actual MongoDB connection string)
-mongoose.connect('mongodb://localhost:27017/healthcareDB', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-});
+mongoose.connect("mongodb://localhost:27017/myData", { useNewUrlParser:true, useUnifiedTopology: true})
 
-// Define a patient schema
-const patientSchema = new mongoose.Schema({
-    patientId: String,
-    surname: String,
-    otherNames: String,
-    gender: String,
-    phoneNumber: String,
-    address: String,
-    emergencyName: String,
-    emergencyContact: String,
-    relationship: String
-});
+const schema = new mongoose.Schema({
+  PatientID: Number,
+  Surname: String,
+  Othernames: String,
+  Gender: String,
+  PhoneNumber: Number,
+  ResidentialAdress: String,
+  EmergencyName: String,
+  Contact: String,
+  Relationship: String
+})
 
-// Create a Patient model using the schema
-const Patient = mongoose.model('Patient', patientSchema);
+const Patient = mongoose.model("Patient", schema);
+const patients = []
+ 
 
-// API endpoint for patient registration
-app.post('/register', async (req, res) => {
-    const {
-        patientId,
-        surname,
-        otherNames,
-        gender,
-        phoneNumber,
-        address,
-        emergencyName,
-        emergencyContact,
-        relationship
-    } = req.body;
+app.post('/register', async(req, res) => {
+  const {
+    PatientID,
+    Surname,
+    Othernames,
+    Gender,
+    PhoneNumber,
+    ResidentialAdress,
+    EmergencyName,
+    Contact,
+    Relationship
+  } = req.body;
 
-    try {
-        // Check if the patient already exists
-        const existingPatient = await Patient.findOne({ patientId });
-        if (existingPatient) {
-            return res.status(400).json({ error: 'Patient already exists' });
-        }
-
-        // Register the new patient
-        const newPatient = new Patient({
-            patientId,
-            surname,
-            otherNames,
-            gender,
-            phoneNumber,
-            address,
-            emergencyName,
-            emergencyContact,
-            relationship
-        });
-
-        await newPatient.save();
-        res.status(201).json({ message: 'Patient registered successfully', patient: newPatient });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
+  try {
+    const isPatientExisting = await Patient.findOne({ PatientID });
+    if(isPatientExisting) {
+      return res.status(400).json({error:"Patient Already exists"})
     }
+
+    const newPatient = new Patient({
+      PatientID,
+      Surname,
+      Othernames,
+      Gender,
+      PhoneNumber,
+      ResidentialAdress,
+      EmergencyName,
+      Contact,
+      Relationship
+    })
+
+    await newPatient.save();
+    res.status(201).json({message: 'Patient registered successfully', patient: newPatient});
+  } catch(error) {
+    console.error(error);
+    res.status(500).json({error: 'Internal Error'})
+  }
 });
 
-// API endpoint for starting an encounter
-app.post('/start-encounter', async (req, res) => {
-    const { patientId, dateAndTime, encounterType } = req.body;
+app.post('/encouter', async (req, res) => {
+  const {
+    PatientID,
+    dateAndTime,
+    type
+  } = req.body;
 
-    try {
-        // Check if the patient exists
-        const patient = await Patient.findOne({ patientId });
-        if (!patient) {
-            return res.status(404).json({ error: 'Patient not found' });
-        }
-
-        // Start the encounter
-        const encounter = {
-            patientId,
-            dateAndTime,
-            encounterType
-        };
-
-        res.status(201).json({ message: 'Encounter started successfully', encounter });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
+  try {
+    const patient = await Patient.findOne({PatientID});
+    if(!patient) {
+      return res.status(404).json({error:"Patient not Found"})
     }
+
+    const encouter = {
+      PatientID,
+      dateAndTime,
+      type
+    };
+
+    res.status(201).json({message: "Enconter Started successfully", encouter})  
+  } catch(error) {
+    console.error(error);
+    res.status(500).json({error: "Internal Error"})
+  }
 });
 
-// Start the server
 const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+app.listen(PORT, ()=> {
+  console.log("Server is running on port "+ PORT)
 });
