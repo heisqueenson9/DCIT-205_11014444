@@ -6,7 +6,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // Connect to MongoDB (replace 'your_database_url' with your actual MongoDB connection string)
-mongoose.connect('mongodb://localhost:27017', {
+mongoose.connect('mongodb://localhost:27017/healthcareDB', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
